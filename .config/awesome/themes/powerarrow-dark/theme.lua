@@ -16,7 +16,7 @@ local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
 local theme                                     = {}
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-dark"
 theme.wallpaper                                 = theme.dir .. "/wall.jpg"
-theme.font                                      = "Terminus 9"
+theme.font                                      = "Roboto 11"
 theme.fg_normal                                 = "#DDDDFF"
 theme.fg_focus                                  = "#EA6F81"
 theme.fg_urgent                                 = "#CC9393"
@@ -31,8 +31,8 @@ theme.tasklist_bg_focus                         = "#1A1A1A"
 theme.titlebar_bg_focus                         = theme.bg_focus
 theme.titlebar_bg_normal                        = theme.bg_normal
 theme.titlebar_fg_focus                         = theme.fg_focus
-theme.menu_height                               = dpi(16)
-theme.menu_width                                = dpi(140)
+theme.menu_height                               = dpi(24)
+theme.menu_width                                = dpi(240)
 theme.menu_submenu_icon                         = theme.dir .. "/icons/submenu.png"
 theme.taglist_squares_sel                       = theme.dir .. "/icons/square_sel.png"
 theme.taglist_squares_unsel                     = theme.dir .. "/icons/square_unsel.png"
@@ -49,6 +49,7 @@ theme.layout_fullscreen                         = theme.dir .. "/icons/fullscree
 theme.layout_magnifier                          = theme.dir .. "/icons/magnifier.png"
 theme.layout_floating                           = theme.dir .. "/icons/floating.png"
 theme.widget_ac                                 = theme.dir .. "/icons/ac.png"
+theme.widget_battery_full                       = theme.dir .. "/icons/battery_full.png"
 theme.widget_battery                            = theme.dir .. "/icons/battery.png"
 theme.widget_battery_low                        = theme.dir .. "/icons/battery_low.png"
 theme.widget_battery_empty                      = theme.dir .. "/icons/battery_empty.png"
@@ -65,8 +66,8 @@ theme.widget_vol_no                             = theme.dir .. "/icons/vol_no.pn
 theme.widget_vol_mute                           = theme.dir .. "/icons/vol_mute.png"
 theme.widget_mail                               = theme.dir .. "/icons/mail.png"
 theme.widget_mail_on                            = theme.dir .. "/icons/mail_on.png"
-theme.tasklist_plain_task_name                  = true
-theme.tasklist_disable_icon                     = true
+theme.tasklist_plain_task_name                  = false
+theme.tasklist_disable_icon                     = false
 theme.useless_gap                               = dpi(0)
 theme.titlebar_close_button_focus               = theme.dir .. "/icons/titlebar/close_focus.png"
 theme.titlebar_close_button_normal              = theme.dir .. "/icons/titlebar/close_normal.png"
@@ -122,7 +123,7 @@ theme.cal = lain.widget.cal({
 local memicon = wibox.widget.imagebox(theme.widget_mem)
 local mem = lain.widget.mem({
     settings = function()
-        widget:set_markup(markup.font(theme.font, " " .. mem_now.used .. "MB "))
+        widget:set_markup(markup.font(theme.font, " " .. mem_now.used .. "MB  "))
     end
 })
 
@@ -130,18 +131,18 @@ local mem = lain.widget.mem({
 local cpuicon = wibox.widget.imagebox(theme.widget_cpu)
 local cpu = lain.widget.cpu({
     settings = function()
-        widget:set_markup(markup.font(theme.font, " " .. cpu_now.usage .. "% "))
+        widget:set_markup(markup.font(theme.font, " " .. cpu_now.usage .. "%  "))
     end
 })
 
 -- FS
-local fsicon = wibox.widget.imagebox(theme.widget_hdd)
-local fswidget = lain.widget.fs({
-    notification_preset = { fg = theme.fg_normal, bg = theme.bg_normal, font = "Terminus 10" },
-    settings = function()
-        widget:set_markup(markup.font(theme.font, " " .. fs_now["/"].percentage .. "% "))
-    end
-})
+-- local fsicon = wibox.widget.imagebox(theme.widget_hdd)
+-- local fswidget = lain.widget.fs({
+--     notification_preset = { fg = theme.fg_normal, bg = theme.bg_normal, font = "Terminus 10" },
+--     settings = function()
+--         widget:set_markup(markup.font(theme.font, " " .. fs_now["/"].percentage .. "%  "))
+--     end
+-- })
 
 -- ALSA volume
 local volicon = wibox.widget.imagebox(theme.widget_vol)
@@ -156,8 +157,7 @@ theme.volume = lain.widget.alsa({
         else
             volicon:set_image(theme.widget_vol)
         end
-
-        widget:set_markup(markup.font(theme.font, " " .. volume_now.level .. "% "))
+        widget:set_markup(markup.font(theme.font, " " .. volume_now.level .. "%  "))
     end
 })
 theme.volume.widget:buttons(awful.util.table.join(
@@ -172,13 +172,34 @@ theme.volume.widget:buttons(awful.util.table.join(
 ))
 
 -- Net
-local neticon = wibox.widget.imagebox(theme.widget_net)
-local net = lain.widget.net({
+-- local neticon = wibox.widget.imagebox(theme.widget_net)
+-- local net = lain.widget.net({
+--     settings = function()
+--         widget:set_markup(markup.font(theme.font,
+--                           markup("#7AC82E", " " .. string.format("%06.1f", net_now.received))
+--                           .. " " ..
+--                           markup("#46A8C3", " " .. string.format("%06.1f", net_now.sent) .. " ")))
+--     end
+-- })
+
+-- Battery
+local baticon = wibox.widget.imagebox(theme.widget_battery)
+local batwidget = lain.widget.bat({
+    battery = "BAT1",
+    ac = "ACAD", 
     settings = function()
-        widget:set_markup(markup.font(theme.font,
-                          markup("#7AC82E", " " .. string.format("%06.1f", net_now.received))
-                          .. " " ..
-                          markup("#46A8C3", " " .. string.format("%06.1f", net_now.sent) .. " ")))
+        widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "%  "))
+        if bat_now.status == "Charging" or bat_now.status == "Full" then
+            baticon:set_image(theme.widget_ac)
+        elseif tonumber(bat_now.perc) <= 15 then
+            baticon:set_image(theme.widget_battery_empty)
+        elseif tonumber(bat_now.perc) <= 35 then
+            baticon:set_image(theme.widget_battery_low)
+        elseif tonumber(bat_now.perc) <= 80 then
+            baticon:set_image(theme.widget_battery)
+        else
+            baticon:set_image(theme.widget_battery_full)
+        end
     end
 })
 
@@ -219,7 +240,7 @@ function theme.at_screen_connect(s)
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, awful.util.tasklist_buttons)
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "bottom", screen = s, height = dpi(20), bg = theme.bg_normal, fg = theme.fg_normal })
+    s.mywibox = awful.wibar({ position = "bottom", screen = s, height = dpi(24), bg = theme.bg_normal, fg = theme.fg_normal })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -240,20 +261,19 @@ function theme.at_screen_connect(s)
             arrl_ld,
             wibox.container.background(keyboardlayout, theme.bg_focus),
             arrl_dl,
-            volicon,
-            theme.volume.widget,
+            cpuicon,
+            cpu.widget,
             arrl_ld,
             wibox.container.background(memicon, theme.bg_focus),
             wibox.container.background(mem.widget, theme.bg_focus),
             arrl_dl,
-            cpuicon,
-            cpu.widget,
+            volicon,
+            theme.volume.widget,
             arrl_ld,
-            wibox.container.background(neticon, theme.bg_focus),
-            wibox.container.background(net.widget, theme.bg_focus),
+            wibox.container.background(baticon, theme.bg_focus),
+            wibox.container.background(batwidget.widget, theme.bg_focus),
             arrl_dl,
-            fsicon,
-            fswidget,
+            -- TODO add network
             arrl_ld,
             wibox.container.background(date, theme.bg_focus),
             arrl_dl,
