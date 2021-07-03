@@ -56,7 +56,7 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({ "compton -b -c --backend glx --vsync opengl-swc" }) -- entries must be separated by commas
+run_once({ "picom -b -c --backend glx --vsync", "nm-applet", "blueman-applet" }) -- entries must be separated by commas
 -- }}}
 
 
@@ -64,13 +64,13 @@ run_once({ "compton -b -c --backend glx --vsync opengl-swc" }) -- entries must b
 local chosen_theme = "powerarrow-dark"
 local modkey       = "Mod4"
 local altkey       = "Mod1"
-local terminal     = "x-terminal-emulator"
+local terminal     = "alacritty"
 local vi_focus     = false -- vi-like client focus - https://github.com/lcpz/awesome-copycats/issues/275
 local cycle_prev   = true -- cycle trough all previous client or just the first -- https://github.com/lcpz/awesome-copycats/issues/274
 local editor = os.getenv("EDITOR") or "editor"
 local editor_cmd = terminal .. " -e " .. editor
-local gui_editor   = "gvim"
-local browser      = "google-chrome"
+local gui_editor   = "code"
+local browser      = "firefox"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "1", "2", "3", "4", "5" }
