@@ -73,7 +73,7 @@ local gui_editor   = "code"
 local browser      = "firefox"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { "1", "2", "3", "4", "5" }
+awful.util.tagnames = { "www", "dev", "sys", "doc", "chat", "media", "gfx" }
 awful.layout.layouts = {
     awful.layout.suit.tile,
     awful.layout.suit.tile.left,
@@ -660,18 +660,64 @@ awful.rules.rules = {
     },
 
     -- Titlebars
-    { rule_any = { type = { "dialog", "normal" } },
-      properties = { titlebars_enabled = false } },
+    { rule_any = { type =  { "normal", "dialog" } },
+        properties = { titlebars_enabled = false } 
+    },
+    
+    -- All dialogs floating, centered
+    { rule = { type = "dialog" },
+      properties = { floating = true },
+      callback = function (c)
+        awful.placement.centered(c,nil)
+      end
+    },
 
-    { rule = { class = "Ulauncher" },
-      properties = { titlebars_enabled = false, floating = true } },
+    -- Floating clients.
+    { rule_any = {
+        instance = {},
+        class = {
+            "Blueman-manager",
+            "Tor Browser" -- Needs a fixed window size to avoid fingerprinting by screen size.
+        },
+        -- Note that the name property shown in xprop might be set slightly after creation of the client
+        -- and the name shown there might not match defined rules here.
+        name = {
+            "Event Tester",  -- xev.
+        },
+        role = {
+            "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+        }
+        }, properties = { floating = true }
+    },
 
-    -- Set Firefox to always map on the first tag on screen 1.
-    --{ rule = { class = "Firefox" },
-    --  properties = { screen = 1, tag = awful.util.tagnames[1] } },
+    -- Set browsers to always map on the tag "www" on screen 1.
+    { rule_any = { class = { 
+        "Firefox",
+        "Chromium",
+        "Google-chrome" } },
+        properties = { screen = 1, tag = awful.util.tagnames[1] } 
+    },
 
-    --{ rule = { class = "Gimp", role = "gimp-image-window" },
-    --      properties = { maximized = true } },
+    -- Set dev tools to always map on the tag "dev" on screen 1.
+    { rule_any = { class = { 
+        "Code",
+        "Insomnia",
+        "MongoDB Compass" } },
+        properties = { screen = 1, tag = awful.util.tagnames[2] } 
+    },
+
+    -- Set messaging apps to always map on the tag "chat" on screen 1.
+    { rule_any = { class = { 
+        "TelegramDesktop",
+        "whatsdesk",
+        "discord" } },
+        properties = { screen = 1, tag = awful.util.tagnames[5] } 
+    },
+    
+    -- Set Gimp to tag "gfx"
+    { rule = { class = "Gimp", role = "gimp-image-window" },
+        properties = { screen = 1, tag = awful.util.tagnames[7], maximized = true }
+    },
 }
 -- }}}
 
@@ -680,7 +726,7 @@ awful.rules.rules = {
 client.connect_signal("manage", function (c)
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
-    -- if not awesome.startup then awful.client.setslave(c) end
+    if not awesome.startup then awful.client.setslave(c) end
 
     if awesome.startup and
       not c.size_hints.user_position
