@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=NXM Handler
+Exec=/home/deck/.local/bin/nxm_handler %u
+Icon=bittorrent-sync
+Terminal=false
+Type=Application
+Categories=Utility
+StartupNotify=false

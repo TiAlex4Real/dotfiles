@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then exit 1; fi
+
+if [[ "$1" == *"nxm://skyrim"* ]]; then
+  appid="72850"
+elif [[ "$1" == *"nxm://oblivion"* ]]; then
+  appid="22330"
+else
+  exit 1
+fi
+
+steampath="/home/deck/.local/share/Steam"
+ppath="$steampath/steamapps/common/Proton 7.0"
+cdata="$steampath/steamapps/compatdata/$appid"
+pfx="$cdata/pfx"
+
+mo2_folder="$cdata/pfx/drive_c/Modding/MO2"
+mo2="$mo2_folder/ModOrganizer.exe"
+mo2_nxm="$mo2_folder/nxmhandler.exe"
+
+cd "$pfx"
+export STEAM_COMPAT_CLIENT_INSTALL_PATH="$steampath"
+export STEAM_COMPAT_DATA_PATH="$cdata"
+export WINEPREFIX=$PWD
+
+kdialog --msgbox "$ppath/proton run $mo2_nxm $1"
+exec "$ppath/proton" run "$mo2_nxm" "$1"
