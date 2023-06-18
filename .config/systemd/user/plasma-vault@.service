@@ -1,0 +1,9 @@
+[Unit]
+Description=Mount plasma Vault %I
+DefaultDependencies=no
+Conflicts=umount.target
+Before=umount.target
+
+[Service]
+Type=forking
+ExecStart="%h/.local/bin/gocryptfs" -idle 5m --extpass "head -n 1 /tmp/plasma-vault-pass-%i" "%h/.local/share/plasma-vault/%I.enc" "%h/Vaults/%I"

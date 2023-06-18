@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -x
+
+VAULT_NAME="galaxydeck"
+VAULT_NAME_ESC="$(systemd-escape "$VAULT_NAME")"
+VAULT_STORAGE="$HOME/.local/share/plasma-vault/$VAULT_NAME.enc"
+VAULT_MP="$HOME/Vaults/$VAULT_NAME"
+
+PASS_FIFO="/tmp/plasma-vault-pass-${VAULT_NAME_ESC}"
+
+function cleanup
+{
+	rm -f "$PASS_FIFO"
+}
+
+function try_mount
+{(
+# 	set -e
+	systemctl --user --no-block start plasma-vault@"$VAULT_NAME_ESC"
+	kdialog --password "Unlock Vault '$VAULT_NAME'" > "$PASS_FIFO" || return 2
+	sleep 1
+	systemctl --user is-active plasma-vault@"$VAULT_NAME_ESC"
+)}
+
+trap cleanup EXIT
+rm -f "$PASS_FIFO"
+mkfifo "$PASS_FIFO"
+
+mountpoint -q "$VAULT_MP"
+mounted=$?
+if [ $mounted -eq 0 ]; then
+	[ -z $1 ] && kdialog --msgbox "Vault '$VAULT_NAME' alredy unlocked" && exit 0
+	exec "$@"
+fi
+
+for _ in $(seq 3)
+do
+	try_mount
+	case $? in
+		0) [ ! -z $1 ] && exec "$@" || kdialog --msgbox "Vault '$VAULT_NAME' unlocked" && break ;;
+		2) break ;;
+		*) kdialog --error "Error mounting vault '$VAULT_NAME'" ;;
+	esac
+done
+
