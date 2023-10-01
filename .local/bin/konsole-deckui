@@ -1,0 +1,3 @@
+#!/bin/bash
+[ -z "$1" ] && set -- "bash"
+exec env -u LD_PRELOAD konsole --fullscreen --notransparency -e "$@"
