@@ -1,0 +1,5 @@
+ungrouped:
+  hosts:
+    deck:
+      ansible_host: 192.168.201.4
+      ansible_user: deck

@@ -1,0 +1,30 @@
+---
+
+- hosts: deck
+  become: true
+  tasks:
+
+    - name: Install flatpaks
+      community.general.flatpak:
+        name:
+          - com.discordapp.Discord
+          - com.github.Matoking.protontricks
+          - com.github.tchx84.Flatseal
+          - com.moonlight_stream.Moonlight
+          - fr.handbrake.ghb
+          - me.kozec.syncthingtk
+          - net.davidotek.pupgui2
+          - org.gnome.baobab
+          - org.kde.kdenlive
+          - org.kde.kwalletmanager5
+          - org.mozilla.firefox
+          - org.qbittorrent.qBittorrent
+          - org.telegram.desktop
+          - org.videolan.VLC
+        state: present
+
+    - name: Remove old flatpaks
+      community.general.flatpak:
+        name:
+          - com.steamgriddb.steam-rom-manager
+        state: absent

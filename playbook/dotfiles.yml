@@ -1,0 +1,49 @@
+---
+
+- hosts: deck
+  vars:
+    overwrite: false
+
+  tasks:
+
+  - name: get-repo
+    ansible.builtin.git:
+      repo: 'https://github.com/TiAlex4Real/dotfiles.git'
+      dest: /home/deck/dotfiles.git
+      bare: true
+
+  - name: config-repo
+    shell: |
+      git config --local status.showUntrackedFiles no
+      git config --local remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+      git fetch
+    args:
+      chdir: /home/deck/dotfiles.git
+
+  - name: .bashrc.d-directory
+    file:
+      path: /home/deck/.bashrc.d
+      state: directory
+
+  - name: .bashrc.d-inject
+    ansible.builtin.lineinfile:
+      path: /home/deck/.bashrc
+      line: for file in ~/.bashrc.d/*.sh; do source $file; done
+
+  - name: dotconfig-alias
+    ansible.builtin.lineinfile:
+      path: /home/deck/.bashrc.d/11-dotconfig-alias.sh
+      line: alias dotconfig="GIT_SSH_COMMAND='ssh -i /home/deck/Vaults/galaxydeck/dotfiles.ssh/id_ed25519' git --git-dir=/home/deck/dotfiles.git --work-tree=/home/deck"
+      create: true
+
+  - name: checkout
+    shell: |
+      source /home/deck/.bashrc.d/11-dotconfig-alias.sh
+      dotconfig symbolic-ref HEAD refs/heads/deck
+      dotconfig restore --staged .
+
+  - name: overwrite
+    shell: |
+      source /home/deck/.bashrc.d/11-dotconfig-alias.sh
+      dotconfig checkout -f deck
+    when: overwrite

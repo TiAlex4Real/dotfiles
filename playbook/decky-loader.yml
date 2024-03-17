@@ -1,0 +1,9 @@
+---
+
+- hosts: deck
+  become: true
+  tasks:
+
+  - name: Installing Decky Loader
+    ansible.builtin.command:
+      cmd: bash -c "curl -L https://github.com/SteamDeckHomebrew/decky-installer/releases/latest/download/install_release.sh | sh"
