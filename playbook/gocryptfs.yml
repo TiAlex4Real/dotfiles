@@ -1,0 +1,20 @@
+---
+
+- hosts: deck
+  become: true
+  tasks:
+
+  - name: install
+    shell: |
+      steamos-readonly disable
+      pacman-key --init
+      pacman-key --populate
+      pacman -q --cachedir=/tmp -Sy
+      pacman -q --cachedir=/tmp -Sw --noconfirm gocryptfs
+      sudo -u deck tar -xvf /tmp/gocryptfs-*.pkg.tar.zst -C /home/deck/.local/bin/ --strip-components=2 usr/bin
+      sudo -u deck /home/deck/.local/bin/gocryptfs --version
+      rm -f /tmp/gocryptfs*.pkg.*
+      steamos-readonly enable
+    register: ps
+
+  - debug: var=ps.stdout_lines
