@@ -1,8 +1,0 @@
-! Screen DPI
-!Xft.dpi: 104
-
-! Xterm Roboto Mono
-xterm*renderFont: true
-xterm*faceName:   Roboto Mono
-xterm*faceSize:   11
-
