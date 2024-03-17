@@ -41,6 +41,7 @@
       source /home/deck/.bashrc.d/11-dotconfig-alias.sh
       dotconfig symbolic-ref HEAD refs/heads/deck
       dotconfig restore --staged .
+      dotconfig sparse-checkout set --no-cone '/*' '!/playbook/'
 
   - name: overwrite
     shell: |
